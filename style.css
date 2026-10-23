@@ -125,3 +125,5 @@ input[type="text"]::placeholder { color: #5a7fb8; }
   cursor: pointer;
 }
 .backup button:hover, .backup .btn-label:hover { border-color: var(--accent); color: var(--accent); }
+
+.backup .btn-label { font-family: 'Cormorant Garamond', serif; font-weight: 600; }
