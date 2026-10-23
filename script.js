@@ -97,3 +97,47 @@ function render() {
 }
 
 render();
+
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(logs, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const date = new Date().toISOString().slice(0, 10);
+  a.download = `dev-tracker-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(reader.result);
+    } catch {
+      alert("That file isn't valid JSON.");
+      return;
+    }
+    const isValid = Array.isArray(parsed) && parsed.every(
+      (entry) => entry && typeof entry.stat === "string" && typeof entry.time === "number"
+    );
+    if (!isValid) {
+      alert("That file doesn't look like a Dev Tracker backup.");
+      return;
+    }
+    const confirmed = confirm("Importing will replace all current data. Continue?");
+    if (!confirmed) return;
+    logs = parsed;
+    saveLogs();
+    render();
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById("export-btn").addEventListener("click", exportBackup);
+document.getElementById("import-file").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) importBackup(file);
+  e.target.value = "";
+});
